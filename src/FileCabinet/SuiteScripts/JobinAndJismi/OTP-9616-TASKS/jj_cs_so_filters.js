@@ -8,19 +8,29 @@ define(['N/url', 'N/currentRecord'], (url, currentRecord) => {
 
   const fieldChanged = (context) => {
     const record = currentRecord.get();
-    const fields = ['custpage_status_filter', 'custpage_customer_filter', 'custpage_subsidiary_filter', 'custpage_department_filter'];
 
-    if (fields.includes(context.fieldId)) {
+    // Map field IDs to parameter names expected by the Suitelet
+    const fieldMap = {
+      custpage_jj_status_filter: 'custpage_jj_status_filter',
+      custpage_jj_customer_filter: 'custpage_jj_customer_filter',
+      custpage_jj_subsidiary_filter: 'custpage_jj_subsidiary_filter',
+      custpage_jj_department_filter: 'custpage_jj_department_filter'
+    };
+
+    if (Object.keys(fieldMap).includes(context.fieldId)) {
       const params = {};
-      fields.forEach(field => {
-        const val = record.getValue({ fieldId: field });
-        if (val) params[field] = val;
+
+      Object.keys(fieldMap).forEach(fieldId => {
+        const value = record.getValue({ fieldId });
+        if (value) {
+          params[fieldMap[fieldId]] = value;
+        }
       });
 
       const resolvedUrl = url.resolveScript({
         scriptId: scriptId,
         deploymentId: deploymentId,
-        params: params,
+        params: params
       });
 
       window.location.href = resolvedUrl;
